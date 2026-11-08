@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#030712" />
+  <title>MAYA — Neural Core AI Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/file-assistant.css" />
+  <!-- css/brain.css is loaded automatically by js/brain.js -->
+</head>
+<body>
+  <!-- Ambient neural field & scanlines -->
+  <div class="ambient-layer" aria-hidden="true">
+    <canvas id="neural-canvas"></canvas>
+    <div class="grid-floor"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="cursor-glow" id="cursor-glow"></div>
+  </div>
+
+  <!-- Cinematic neural boot sequence -->
+  <div id="boot-screen" class="boot-screen" aria-live="polite">
+    <div class="boot-core">
+      <div class="boot-rings"><span></span><span></span><span></span></div>
+      <div class="boot-orb" data-maya-logo="boot"></div>
+    </div>
+    <p class="boot-brand">MAYA</p>
+    <p class="boot-sub" id="boot-status">Initializing neural core…</p>
+    <div class="boot-bar"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+    <pre class="boot-log" id="boot-log"></pre>
+  </div>
+
+  <!-- Notifications container -->
+  <div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p style="position:fixed;inset:0;display:grid;place-items:center;color:#fff;background:#030712;z-index:9999">
+      MAYA needs JavaScript to run. Please enable JavaScript and reload.
+    </p>
+  </noscript>
+
+  <div class="app-container">
+
+    <!-- AUTHENTICATION STAGE -->
+    <div id="auth-screen" class="auth-screen" style="display: none;">
+      <div class="auth-stage">
+        <div class="auth-visual">
+          <div class="auth-avatar-wrap">
+            <img src="assets/avatar.png" alt="Maya AI Neural Avatar" class="auth-avatar-img" />
+          </div>
+          <p class="auth-kicker">NEURAL CORE // V2.5</p>
+          <h1 class="auth-logo">MAYA</h1>
+          <p class="auth-tag">Warm Intelligence · Immersive Voice · File Intelligence</p>
+        </div>
+
+        <div class="auth-card">
+          <div class="hud-label">ACCESS TERMINAL</div>
+          <h2 id="auth-title">Welcome to Maya</h2>
+          <p class="subtitle" id="auth-subtitle">Your warm, caring neural companion</p>
+
+          <form id="auth-form" data-mode="login">
+            <div class="form-group" id="auth-name-group" style="display: none;">
+              <label for="auth-name">Your Name</label>
+              <input type="text" id="auth-name" placeholder="What should Maya call you?" autocomplete="name" />
+            </div>
+
+            <div class="form-group">
+              <label for="auth-email">Email Address</label>
+              <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="auth-password">Password</label>
+              <input type="password" id="auth-password" placeholder="At least 6 characters" autocomplete="current-password" minlength="6" required />
+            </div>
+
+            <button type="submit" class="btn-primary" id="auth-submit-btn">Initialize Session</button>
+          </form>
+
+          <p class="auth-toggle" id="auth-toggle-text">
+            Don't have an account? <a href="#">Create one</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN DASHBOARD (ALWAYS VISIBLE AFTER AUTH) -->
+    <div id="chat-screen" style="display: none;">
+
+      <!-- A. LEFT SIDEBAR: NEURAL CORE -->
+      <aside class="neural-sidebar" id="neural-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-avatar-wrap">
+            <img src="assets/avatar.png" alt="Maya Avatar" class="sidebar-avatar-img" />
+            <span class="sidebar-orb-indicator"></span>
+          </div>
+          <div class="sidebar-brand-title">
+            <span class="sidebar-brand-name">MAYA</span>
+            <span class="sidebar-brand-sub">Neural Core</span>
+          </div>
+        </div>
+
+        <!-- Telemetry & Intelligence Indicators -->
+        <div class="sidebar-telemetry">
+          <div class="telemetry-status-row">
+            <span class="status-badge">
+              <span class="status-pulse-dot"></span>
+              CORE: <span id="neural-core-status">IDLE</span>
+            </span>
+            <span class="telemetry-clock" id="sidebar-clock">00:00:00</span>
+          </div>
+
+          <div class="intel-meters">
+            <div class="intel-meter-item">
+              <div class="intel-meter-label">
+                <span>Signal Strength</span>
+                <span class="intel-meter-value" id="meter-signal">98%</span>
+              </div>
+              <div class="intel-track">
+                <div class="intel-fill signal" id="meter-signal-fill" style="width: 98%;"></div>
+              </div>
+            </div>
+
+            <div class="intel-meter-item">
+              <div class="intel-meter-label">
+                <span>Empathy Resonance</span>
+                <span class="intel-meter-value" id="meter-empathy">94%</span>
+              </div>
+              <div class="intel-track">
+                <div class="intel-fill empathy" id="meter-empathy-fill" style="width: 94%;"></div>
+              </div>
+            </div>
+
+            <div class="intel-meter-item">
+              <div class="intel-meter-label">
+                <span>Neural Focus</span>
+                <span class="intel-meter-value" id="meter-focus">90%</span>
+              </div>
+              <div class="intel-track">
+                <div class="intel-fill focus" id="meter-focus-fill" style="width: 90%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="sidebar-nav">
+          <span class="sidebar-nav-label">Navigation</span>
+          <button class="nav-item active" data-nav="home" type="button">
+            <span class="nav-item-icon">⬡</span>
+            <span>Home</span>
+          </button>
+          <button class="nav-item" data-nav="conversations" type="button">
+            <span class="nav-item-icon">💬</span>
+            <span>Conversations</span>
+          </button>
+          <button class="nav-item" data-nav="tasks" id="nav-tasks-btn" type="button">
+            <span class="nav-item-icon">▣</span>
+            <span>Tasks</span>
+          </button>
+          <button class="nav-item" data-nav="files" id="nav-files-btn" type="button">
+            <span class="nav-item-icon">▤</span>
+            <span>File Intelligence</span>
+          </button>
+          <button class="nav-item" data-nav="voice" id="nav-voice-btn" type="button">
+            <span class="nav-item-icon">◉</span>
+            <span>Voice Studio</span>
+          </button>
+          <button class="nav-item" data-nav="memory" id="nav-memory-btn" type="button">
+            <span class="nav-item-icon">✦</span>
+            <span>Memory</span>
+          </button>
+          <button class="nav-item" data-nav="settings" id="nav-settings-btn" type="button">
+            <span class="nav-item-icon">⚙</span>
+            <span>Settings</span>
+          </button>
+        </nav>
+
+        <!-- Sidebar Profile Footer -->
+        <div class="sidebar-footer">
+          <div class="user-profile-chip">
+            <div class="user-avatar-mini" id="user-avatar-initial">U</div>
+            <div class="user-info-text">
+              <span class="user-name-text" id="user-name-display">friend</span>
+              <span class="user-role-text">Active Link</span>
+            </div>
+          </div>
+          <button class="btn-sidebar-icon" id="logout-btn" title="Sign Out" aria-label="Sign out">⏻</button>
+        </div>
+      </aside>
+
+      <!-- Backdrop for mobile sidebar -->
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+      <!-- B. MAIN CONTENT WORKSPACE -->
+      <main class="main-content" id="main-content">
+
+        <!-- TOP NAVIGATION -->
+        <header class="top-navbar">
+          <div class="top-nav-left">
+            <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Toggle navigation" type="button">☰</button>
+            <div class="top-brand">
+              <span class="top-brand-title">MAYA</span>
+              <span class="top-status-pill">
+                <span class="top-status-dot"></span>
+                LIVE
+              </span>
+            </div>
+          </div>
+
+          <div class="top-nav-right">
+            <!-- AI Brain Button (wired by js/brain.js or rendered here) -->
+            <button class="btn-nav-action btn-brain-glow" id="enter-brain-btn" title="Open AI Brain" type="button">
+              <span class="brain-glyph">🧠</span>
+              <span class="nav-btn-label">AI Brain</span>
+            </button>
+
+            <!-- File Intelligence Button -->
+            <button class="btn-nav-action btn-file-glow" id="open-file-assistant-btn" type="button"
+                    aria-label="Open file intelligence" aria-pressed="false" title="File Intelligence">
+              <span class="file-mode-icon">▤</span>
+              <span class="nav-btn-label">File Intelligence</span>
+            </button>
+
+            <!-- Immersive Voice Button -->
+            <button class="btn-nav-action btn-voice-live" id="enter-voice-mode-btn" title="Open Full-Screen Voice Mode" type="button">
+              <span class="btn-voice-dot"></span>
+              <span class="nav-btn-label">Immersive Voice</span>
+            </button>
+
+            <!-- Auxiliary Controls -->
+            <button class="btn-icon" id="voice-settings-btn" title="Voice & Warmth Settings" aria-label="Settings" type="button">⚙</button>
+            <button class="btn-icon" id="task-toggle-btn" title="Task Matrix" aria-label="Tasks" type="button">▣</button>
+          </div>
+        </header>
+
+        <!-- MAIN CHAT WORKSPACE -->
+        <div class="chat-workspace">
+          <div class="chat-workspace-header">
+            <span class="chat-channel-title">ACTIVE CHANNEL // DIRECT NEURAL LINK</span>
+            <div class="chat-channel-indicator">
+              <span class="status-dot normal"></span>
+              <span id="hud-time">00:00:00</span>
+            </div>
+          </div>
+
+          <!-- Messages Container -->
+          <div class="messages-container" id="messages" role="log" aria-live="polite">
+            <!-- Empty state displayed before any conversation -->
+            <div class="empty-chat-state" id="empty-chat-state">
+              <img src="assets/avatar.png" alt="Maya Avatar" class="empty-chat-avatar" />
+              <h3 class="empty-chat-title">MAYA NEURAL CORE</h3>
+              <p class="empty-chat-desc">
+                Your empathetic, futuristic AI companion with high-precision reasoning, real-time voice, and file intelligence. Ask a question, explore a document, or speak directly.
+              </p>
+            </div>
+          </div>
+
+          <!-- Fixed Bottom Input Bar Area -->
+          <div class="input-dock-container">
+            <div class="quick-chips-container" id="quick-chips">
+              <button class="chip-btn" data-prompt="Explain quantum computing in simple, fun terms with a daily life analogy!" type="button">Explain simply</button>
+              <button class="chip-btn" data-prompt="Help me design a productive and balanced study schedule for this week." type="button">Study plan</button>
+              <button class="chip-btn" data-prompt="Let's brainstorm a futuristic cyberpunk detective story together." type="button">Story idea</button>
+              <button class="chip-btn" data-prompt="Maya, can you check and list all my pending tasks?" type="button">My tasks</button>
+            </div>
+
+            <div class="fixed-input-bar">
+              <button class="btn-mic" id="mic-btn" title="Tap to speak" aria-label="Voice input" type="button">◉</button>
+              <textarea
+                id="chat-input"
+                class="chat-input-textarea"
+                rows="1"
+                placeholder="Speak to the neural core, or type a thought…"
+                autocomplete="off"
+                aria-label="Message Maya"
+              ></textarea>
+              <button class="btn-send" id="send-btn" title="Send message" aria-label="Send message" type="button">➤</button>
+            </div>
+
+            <div class="status-bar-row" id="status-bar">
+              <div class="status-indicator">
+                <span class="status-dot normal"></span>
+                <span class="status-text">Neural core ready</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLOATING FILE INTELLIGENCE DRAWER (Slides in from right over chat) -->
+        <div id="file-drawer-backdrop"></div>
+        <div id="maya-file-assistant" hidden></div>
+
+        <!-- TASK MATRIX MODAL / PANEL -->
+        <div id="task-panel" class="task-panel">
+          <div class="task-panel-header">
+            <h2>Task Matrix</h2>
+            <button class="btn-close" id="back-to-chat-btn" title="Back to chat" aria-label="Back to chat">✕</button>
+          </div>
+          <div class="task-list" id="task-list"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- IMMERSIVE FULL-SCREEN LIVE VOICE WORKSPACE -->
+  <div id="voice-mode-overlay" class="voice-mode-overlay" style="display: none;">
+    <div class="voice-mode-header">
+      <div class="voice-mode-title">
+        <span class="voice-mode-kicker">IMMERSIVE CHANNEL</span>
+        <span>MAYA LIVE</span>
+        <span class="status-dot normal" id="voice-mode-dot"></span>
+      </div>
+      <button class="btn-icon" id="exit-voice-mode-btn" title="Exit to text chat" aria-label="Exit voice mode">✕</button>
+    </div>
+
+    <div class="orb-stage">
+      <div class="orb-halo"></div>
+      <div class="orb-ring r1"></div>
+      <div class="orb-ring r2"></div>
+      <div class="orb-ring r3"></div>
+
+      <!-- MAYA Avatar Core -->
+      <div class="voice-avatar-core idle" id="maya-large-orb" title="Tap to talk / stop">
+        <img src="assets/avatar.png" alt="Maya Avatar" class="voice-avatar-img" />
+      </div>
+
+      <!-- Animated Audio Waveform EQ Bars -->
+      <div class="eq-bars" id="eq-bars">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+
+      <p class="orb-state-label" id="orb-state-label">IDLE · TAP TO SPEAK</p>
+    </div>
+
+    <!-- Live Transcript Box -->
+    <div class="voice-transcript-box" id="voice-transcript-box" aria-live="polite">
+      <span class="voice-transcript-placeholder" id="voice-transcript-text">
+        Enter the field. Tap the core or mic below and speak with Maya.
+      </span>
+    </div>
+
+    <!-- Voice Control Bar -->
+    <div class="voice-controls-bar">
+      <button class="voice-aux-btn" id="voice-mode-stop-btn" title="Stop speaking" type="button">⏹ Stop</button>
+      <button class="voice-circle-mic" id="voice-mode-mic-btn" title="Tap to speak" aria-label="Tap to speak" type="button">◉</button>
+      <button class="voice-aux-btn" id="voice-mode-interrupt-btn" title="Interrupt" type="button">⚡ Interrupt</button>
+      <button class="voice-aux-btn" id="voice-mode-settings-btn" title="Voice Settings" type="button">⚙ Voice</button>
+    </div>
+  </div>
+
+  <!-- VOICE & WARMTH SETTINGS MODAL -->
+  <div id="voice-modal" class="modal-overlay" style="display: none;" role="dialog" aria-label="Voice and warmth settings">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Maya Voice & Warmth Settings</h3>
+        <button class="btn-close" id="voice-modal-close-btn" aria-label="Close settings">&times;</button>
+      </div>
+
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:18px;">
+        <label style="font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.12em;">
+          Warmth Tone Presets
+        </label>
+        <div class="warmth-presets-grid" id="warmth-presets">
+          <div class="warmth-preset-btn active" data-preset="soothing">
+            <span class="warmth-preset-title">Soothing Companion</span>
+            <span class="warmth-preset-desc">Relaxed, soft & gentle for long listening</span>
+          </div>
+          <div class="warmth-preset-btn" data-preset="warm_bestie">
+            <span class="warmth-preset-title">Warm Bestie</span>
+            <span class="warmth-preset-desc">Upbeat, friendly & cheerful</span>
+          </div>
+          <div class="warmth-preset-btn" data-preset="study_buddy">
+            <span class="warmth-preset-title">Study Partner</span>
+            <span class="warmth-preset-desc">Crisp, focused & articulate</span>
+          </div>
+          <div class="warmth-preset-btn" data-preset="late_night">
+            <span class="warmth-preset-title">Late Night Calm</span>
+            <span class="warmth-preset-desc">Whisper-soft, slow & peaceful</span>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <label for="voice-select">Maya's Speaking Voice</label>
+          <select id="voice-select" class="settings-select">
+            <option value="">Auto (Default Best Voice)</option>
+          </select>
+          <small class="settings-hint" style="font-size:11px;color:var(--text-muted);">Tip: Natural and neural voices sound smoothest.</small>
+        </div>
+
+        <div class="settings-group">
+          <div class="slider-label">
+            <label for="voice-rate">Speaking Speed</label>
+            <span id="rate-value">0.94x</span>
+          </div>
+          <input type="range" id="voice-rate" min="0.75" max="1.3" step="0.02" value="0.94" class="slider" />
+        </div>
+
+        <div class="settings-group">
+          <div class="slider-label">
+            <label for="voice-pitch">Pitch / Warmth</label>
+            <span id="pitch-value">0.94</span>
+          </div>
+          <input type="range" id="voice-pitch" min="0.75" max="1.25" step="0.02" value="0.94" class="slider" />
+        </div>
+
+        <div class="settings-group">
+          <label for="stt-lang-select">Microphone Listening Language</label>
+          <select id="stt-lang-select" class="settings-select">
+            <option value="en-IN">English (India)</option>
+            <option value="en-US">English (United States)</option>
+            <option value="en-GB">English (United Kingdom)</option>
+            <option value="hi-IN">Hindi (India)</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button id="test-voice-btn" class="btn-secondary" type="button">Test Voice</button>
+          <button id="save-voice-btn" class="btn-primary" style="width: auto; padding: 10px 24px;" type="button">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modular Vanilla JavaScript ES Modules -->
+  <script type="module" src="js/voice.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
+  <script type="module" src="js/appearance.js"></script>
+  <script type="module" src="js/immersive.js"></script>
+  <script type="module" src="js/brain.js"></script>
+  <script type="module" src="js/assistant.js"></script>
+  <script type="module" src="js/file-assistant.js"></script>
+</body>
+</html>
